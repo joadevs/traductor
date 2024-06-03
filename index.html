@@ -15,7 +15,7 @@
     <div class="wrapper">
       <div class="text-input">
         <textarea spellcheck="false" class="from-text" placeholder="Colocar Texto"></textarea>
-        <textarea spellcheck="false" readonly disabled class="to-text" placeholder="Traduccion"></textarea>
+        <textarea spellcheck="false" readonly disabled class="to-text" placeholder="texto"></textarea>
       </div>
       <ul class="controls">
         <li class="row from">
@@ -38,9 +38,177 @@
     <button>Traducir Texto</button>
   </div>
 
-  <script src="countries.js"></script>
-  <script src="script.js"></script>
+ <script>
+    const countries = {
+    "am-ET": "Amárico",
+    "ar-SA": "Árabe",
+    "be-BY": "Bielorruso",
+    "bem-ZM": "Bemba",
+    "bi-VU": "Bislama",
+    "bjs-BB": "Bajan",
+    "bn-IN": "Bengalí",
+    "bo-CN": "Tibetano",
+    "br-FR": "Bretón",
+    "bs-BA": "Bosnio",
+    "ca-ES": "Catalán",
+    "cop-EG": "Copto",
+    "cs-CZ": "Checo",
+    "cy-GB": "Galés",
+    "da-DK": "Danés",
+    "dz-BT": "Dzongkha",
+    "de-DE": "Alemán",
+    "dv-MV": "Maldivo",
+    "el-GR": "Griego",
+    "en-GB": "Inglés",
+    "es-ES": "Español",
+    "et-EE": "Estonio",
+    "eu-ES": "Vasco",
+    "fa-IR": "Persa",
+    "fi-FI": "Finlandés",
+    "fn-FNG": "Fanagalo",
+    "fo-FO": "Feroés",
+    "fr-FR": "Francés",
+    "gl-ES": "Gallego",
+    "gu-IN": "Gujarati",
+    "ha-NE": "Hausa",
+    "he-IL": "Hebreo",
+    "hi-IN": "Hindi",
+    "hr-HR": "Croata",
+    "hu-HU": "Húngaro",
+    "id-ID": "Indonesio",
+    "is-IS": "Islandés",
+    "it-IT": "Italiano",
+    "ja-JP": "Japonés",
+    "kk-KZ": "Kazajo",
+    "km-KM": "Camboyano",
+    "kn-IN": "Kannada",
+    "ko-KR": "Coreano",
+    "ku-TR": "Kurdo",
+    "ky-KG": "Kirguís",
+    "la-VA": "Latín",
+    "lo-LA": "Lao",
+    "lv-LV": "Letón",
+    "men-SL": "Mende",
+    "mg-MG": "Malgache",
+    "mi-NZ": "Maorí",
+    "ms-MY": "Malayo",
+    "mt-MT": "Maltés",
+    "my-MM": "Birmano",
+    "ne-NP": "Nepalí",
+    "niu-NU": "Niueano",
+    "nl-NL": "Holandés",
+    "no-NO": "Noruego",
+    "ny-MW": "Chichewa",
+    "ur-PK": "Pakistaní",
+    "pau-PW": "Palauno",
+    "pa-IN": "Panyabí",
+    "ps-PK": "Pastún",
+    "pis-SB": "Pijin",
+    "pl-PL": "Polaco",
+    "pt-PT": "Portugués",
+    "rn-BI": "Kirundi",
+    "ro-RO": "Rumano",
+    "ru-RU": "Ruso",
+    "sg-CF": "Sango",
+    "si-LK": "Cingalés",
+    "sk-SK": "Eslovaco",
+    "sm-WS": "Samoano",
+    "sn-ZW": "Shona",
+    "so-SO": "Somalí",
+    "sq-AL": "Albanés",
+    "sr-RS": "Serbio",
+    "sv-SE": "Sueco",
+    "sw-SZ": "Suajili",
+    "ta-LK": "Tamil",
+    "te-IN": "Telugu",
+    "tet-TL": "Tetún",
+    "tg-TJ": "Tayiko",
+    "th-TH": "Tailandés",
+    "ti-TI": "Tigriña",
+    "tk-TM": "Turcomano",
+    "tl-PH": "Tagalo",
+    "tn-BW": "Setsuana",
+    "to-TO": "Tongano",
+    "tr-TR": "Turco",
+    "uk-UA": "Ucraniano",
+    "uz-UZ": "Uzbeko",
+    "vi-VN": "Vietnamita",
+    "wo-SN": "Wolof",
+    "xh-ZA": "Xhosa",
+    "yi-YD": "Yidis",
+    "zu-ZA": "Zulú"
+}
+const fromText = document.querySelector(".from-text");
+const toText = document.querySelector(".to-text");
+const exchageIcon = document.querySelector(".exchange");
+const selectTag = document.querySelectorAll("select");
+const icons = document.querySelectorAll(".row i");
+const translateBtn = document.querySelector("button");
 
+selectTag.forEach((tag, id) => {
+    for (let country_code in countries) {
+        let selected = id == 0 ? country_code == "en-GB" ? "selected" : "" : country_code == "de-DE" ? "selected" : "";
+        let option = `<option ${selected} value="${country_code}">${countries[country_code]}</option>`;
+        tag.insertAdjacentHTML("beforeend", option);
+    }
+});
+
+exchageIcon.addEventListener("click", () => {
+    let tempText = fromText.value,
+        tempLang = selectTag[0].value;
+    fromText.value = toText.value;
+    toText.value = tempText;
+    selectTag[0].value = selectTag[1].value;
+    selectTag[1].value = tempLang;
+});
+
+fromText.addEventListener("keyup", () => {
+    if (!fromText.value) {
+        toText.value = "";
+    }
+});
+
+translateBtn.addEventListener("click", () => {
+    let text = fromText.value.trim(),
+        translateFrom = selectTag[0].value,
+        translateTo = selectTag[1].value;
+    if (!text) return;
+    toText.setAttribute("placeholder", "Translating...");
+    let apiUrl = `https://api.mymemory.translated.net/get?q=${text}&langpair=${translateFrom}|${translateTo}`;
+    fetch(apiUrl).then(res => res.json()).then(data => {
+        toText.value = data.responseData.translatedText;
+        data.matches.forEach(data => {
+            if (data.id === 0) {
+                toText.value = data.translation;
+            }
+        });
+        toText.setAttribute("placeholder", "Translation");
+    });
+});
+
+icons.forEach(icon => {
+    icon.addEventListener("click", ({ target }) => {
+        if (!fromText.value || !toText.value) return;
+        if (target.classList.contains("fa-copy")) {
+            if (target.id == "from") {
+                navigator.clipboard.writeText(fromText.value);
+            } else {
+                navigator.clipboard.writeText(toText.value);
+            }
+        } else {
+            let utterance;
+            if (target.id == "from") {
+                utterance = new SpeechSynthesisUtterance(fromText.value);
+                utterance.lang = selectTag[0].value;
+            } else {
+                utterance = new SpeechSynthesisUtterance(toText.value);
+                utterance.lang = selectTag[1].value;
+            }
+            speechSynthesis.speak(utterance);
+        }
+    });
+});
+ </script>
 </body>
 
 </html>
